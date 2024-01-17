@@ -6,5 +6,5 @@
 3. Switch on the developer mode toggle button situated in the top right corner.
 4. Click on the Load unpacked button on the left corner. It will ask you to select folder in which manifest.json file is present.
 5. Once it is selected, The extention will be reflected in the chrome extentions page.
-6. Go to the Amazon page any product. Click on the extension button, select extention and click on scrape product button.
+6. Go to the Amazon page, select any product. Click on the extension button, select extention and click on scrape product button.
 7. Once it is clicked Product title,price and image of product will be listed and a link to that product will be displayed.
