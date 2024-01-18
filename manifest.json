@@ -8,12 +8,20 @@
     },
     "content_scripts": [
       {
-        "matches": ["*://www.amazon.in/*"],
+        "matches": [
+          "*://www.amazon.in/*",
+          "*://www.ebay.com/*",
+          "*://www.etsy.com/*",
+          "*://www.walmart.com/*"
+        ],
         "js": ["./content.js"]
       }
     ],
     "permissions": ["tabs", "storage"],
     "host_permissions": [
-        "*://www.amazon.in/*"
+        "*://www.amazon.in/*",
+        "*://www.ebay.com/*",
+        "*://www.etsy.com/*",
+        "*://www.walmart.com/*"
     ]
   }
