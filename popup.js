@@ -26,7 +26,23 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         link.setAttribute("target", "_blank")
         link.textContent = 'View Product';
         listItem.appendChild(link);
+
+        const addToCartButton = document.createElement('button');
+        addToCartButton.id = 'addToCartButton'
+        addToCartButton.innerText = 'Add to Cart'
+
+        checkProductInCart(item, addToCartButton) /// for changing button text according to item's existence in cart
+
+        addToCartButton.style.float = 'right'
+        listItem.appendChild(addToCartButton);
+
         resultList.appendChild(listItem);
+
+        addToCartButton.addEventListener("click", () => {
+          addToCartFn(addToCartButton, item)
+
+        })
+
       });
     } catch (error) { }
   }
@@ -41,7 +57,7 @@ document.getElementById('showCartButton').addEventListener('click', function () 
     cartList.style.display = 'block';
     cartList.innerHTML = '';
     chrome.storage.local.get("scrappedProducts", (resp) => {
-      if(resp.scrappedProducts?.length > 0) {
+      if (resp.scrappedProducts?.length > 0) {
         const heading = document.createElement('h3')
         heading.textContent = 'Cart Items'
         heading.classList.add('heading_class')
@@ -51,13 +67,13 @@ document.getElementById('showCartButton').addEventListener('click', function () 
         clearAllButton.innerText = 'Clear Cart';
         clearAllButton.style.marginBottom = '20px';
         cartList.appendChild(clearAllButton);
-        clearAllButton.addEventListener("click", () => {
+        clearAllButton.addEventListener("click", async () => {
           cartList.innerHTML = ''
           chrome.storage.local.clear()
           createNoItemTemplate(cartList)
         })
 
-          resp.scrappedProducts.forEach((item, index) => {
+        resp.scrappedProducts.forEach((item, index) => {
           const listItem = document.createElement('li');
           listItem.textContent = `${item.name} - Price: ${item.price}`;
           const image = document.createElement('img');
@@ -81,14 +97,14 @@ document.getElementById('showCartButton').addEventListener('click', function () 
             resp.scrappedProducts.splice(index, 1)
             const removedProduct = document.getElementById(`${index}`)
             cartList.removeChild(removedProduct)
-            chrome.storage.local.set({ "scrappedProducts": resp.scrappedProducts})
-            if(resp?.scrappedProducts?.length === 0) {
+            chrome.storage.local.set({ "scrappedProducts": resp.scrappedProducts })
+            if (resp?.scrappedProducts?.length === 0) {
               clearAllButton.style.display = 'none';
               heading.style.display = 'none'
               createNoItemTemplate(cartList)
             }
           })
-      })
+        })
       }
       else {
         createNoItemTemplate(cartList)
@@ -98,7 +114,77 @@ document.getElementById('showCartButton').addEventListener('click', function () 
 });
 
 
+function addToCartFn(addToCartButton, item) {
+  chrome.storage.local.get("scrappedProducts", async (resp) => {
+    let productExists = false;
+    if (resp?.scrappedProducts?.length > 0) {
+      for (let data of resp.scrappedProducts) {
+        if (data.name === item.name) {
+          productExists = true
+          break;
+        }
+        else {
+          productExists = false
+        }
+      }
+    }
+    else {
+      productExists = false
+    }
+
+    if (resp.scrappedProducts && resp.scrappedProducts.length > 0) {
+      if (!productExists) {
+        // if product does not exists in cart we should add it to cart else remove it from cart
+        chrome.storage.local.set({ "scrappedProducts": [...resp.scrappedProducts, item] })
+        addToCartButton.innerText = 'Remove product from Cart'
+      }
+      else {
+        const filterdData = resp.scrappedProducts.filter((data) => data.name !== item.name);
+        chrome.storage.local.set({ "scrappedProducts": filterdData })
+        addToCartButton.innerText = 'Add to Cart'
+      }
+
+    }
+    else {
+      if (!productExists) {
+        chrome.storage.local.set({ "scrappedProducts": [item] })
+        addToCartButton.innerText = 'Remove product from Cart'
+      }
+      else {
+        chrome.storage.local.clear();
+        addToCartButton.innerText = 'Add to Cart'
+      }
+    }
+  })
+}
+
+function checkProductInCart(item, addToCartButton = null) {
+  let productExists = false;
+  /// for changing button text according to item's existence in cart
+  chrome.storage.local.get("scrappedProducts", (resp) => {
+    if (resp?.scrappedProducts?.length > 0) {
+      for (let data of resp.scrappedProducts) {
+        if (data.name === item.name) {
+          productExists = true
+          addToCartButton.innerText = 'Remove product from Cart'
+          break;
+        }
+        else {
+          productExists = false
+          addToCartButton.innerText = 'Add to Cart'
+        }
+      }
+    }
+    else {
+      productExists = false
+    }
+  })
+  return productExists
+}
+
+
 function createNoItemTemplate(cartList) {
+  // for creating no items template
   const heading = document.createElement('h3')
   heading.style.textAlign = 'center'
   heading.style.marginBottom = '20px'

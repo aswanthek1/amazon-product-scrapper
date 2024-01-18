@@ -46,15 +46,15 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
       const url = window.location.href;
       const data = [{ name, price, image, url }];
 
-      chrome.storage.local.get("scrappedProducts", (resp) => {
-        if (resp.scrappedProducts && resp.scrappedProducts.length > 0) {
-          const filterdData = resp.scrappedProducts?.filter((item) => (item.name !== data[0].name && item.price !== data[0].price))
-          chrome.storage.local.set({ "scrappedProducts": [...filterdData, data[0]] })
-        }
-        else {
-          chrome.storage.local.set({ "scrappedProducts": [data[0]] })
-        }
-      })
+      // chrome.storage.local.get("scrappedProducts", (resp) => {
+      //   if (resp.scrappedProducts && resp.scrappedProducts.length > 0) {
+      //     const filterdData = resp.scrappedProducts?.filter((item) => (item.name !== data[0].name && item.price !== data[0].price))
+      //     chrome.storage.local.set({ "scrappedProducts": [...filterdData, data[0]] })
+      //   }
+      //   else {
+      //     chrome.storage.local.set({ "scrappedProducts": [data[0]] })
+      //   }
+      // })
 
       chrome.runtime.sendMessage({ action: 'displayData', data });
     }
